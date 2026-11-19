@@ -3,21 +3,6 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(page_title="Service Profit Dashboard", layout="wide")
-st.markdown(
-    """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
-    """,
-    unsafe_allow_html=True,)
-st.title("Workshop Service Category & Profit Dashboard")
-import io
-import pandas as pd
-import streamlit as st
-
-st.set_page_config(page_title="Service Profit Dashboard", layout="wide")
 
 st.markdown(
     """
