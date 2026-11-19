@@ -1,3 +1,12 @@
+st.markdown(
+    """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+    """,
+    unsafe_allow_html=True,)
 import io
 import pandas as pd
 import streamlit as st
