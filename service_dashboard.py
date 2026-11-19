@@ -1,3 +1,8 @@
+import io
+import pandas as pd
+import streamlit as st
+
+st.set_page_config(page_title="Service Profit Dashboard", layout="wide")
 st.markdown(
     """
     <style>
@@ -7,11 +12,6 @@ st.markdown(
     </style>
     """,
     unsafe_allow_html=True,)
-import io
-import pandas as pd
-import streamlit as st
-
-st.set_page_config(page_title="Service Profit Dashboard", layout="wide")
 st.title("Workshop Service Category & Profit Dashboard")
 
 uploaded_files = st.file_uploader(
