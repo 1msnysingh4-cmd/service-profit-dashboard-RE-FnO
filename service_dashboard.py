@@ -27,7 +27,7 @@ with st.sidebar:
     st.markdown("**Don't have a key?**")
     # Replace the URL below with your Razorpay / Cosmofeed / UPI payment link
     st.link_button(
-        "💳 Unlock Full Access — ₹499/mo",
+        "💳 Unlock Full Access — ₹60/mo",
         "https://rzp.io/l/your-payment-link",
         use_container_width=True,
     )
