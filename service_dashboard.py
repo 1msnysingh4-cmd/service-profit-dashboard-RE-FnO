@@ -17,63 +17,55 @@ st.markdown(
 )
 
 
-def render_razorpay_buttons(compact=False):
-    if compact:
-        components.html(
+def render_razorpay_button():
+    components.html(
+        """
+        <div style="border: 2px solid #2b6cb0; border-radius: 10px; padding: 16px 20px; background: #ebf8ff; font-family: sans-serif; max-width: 430px;">
+            <div style="font-weight: 700; font-size: 16px; color: #1a365d; margin-bottom: 4px;">⭐ Lifetime Pro License — ₹699 (One-Time Payment)</div>
+            <div style="font-size: 13px; color: #2c5282; margin-bottom: 12px;">Pay once, use forever. Unlimited files, rows & Excel reports.</div>
+            <form>
+                <script src="https://checkout.razorpay.com/v1/payment-button.js"
+                        data-payment_button_id="pl_U382n3tm4IReDi"
+                        async>
+                </script>
+            </form>
+        </div>
+        """,
+        height=145,
+    )
+
+
+def render_tnc():
+    with st.expander("📜 Terms & Conditions (License & Usage Policy)"):
+        st.markdown(
             """
-            <div style="font-family: sans-serif; text-align: center;">
-                <p style="font-size: 13px; font-weight: 600; margin: 4px 0;">Monthly Plan — ₹99/mo</p>
-                <form>
-                    <script src="https://checkout.razorpay.com/v1/payment-button.js"
-                            data-payment_button_id="pl_U380DaigJ2TGTN"
-                            async>
-                    </script>
-                </form>
-                <p style="font-size: 13px; font-weight: 600; margin: 10px 0 4px 0;">Yearly Plan — ₹699/yr (Save 41%)</p>
-                <form>
-                    <script src="https://checkout.razorpay.com/v1/payment-button.js"
-                            data-payment_button_id="pl_U382n3tm4IReDi"
-                            async>
-                    </script>
-                </form>
-            </div>
-            """,
-            height=175,
-        )
-    else:
-        components.html(
+            **1. Single-User / Single-Workshop License:**  
+            Each ₹699 one-time license key is valid for **unlimited lifetime use by one user or one workshop/dealership location**. Sharing, reselling, or distributing a license key publicly or across multiple branches is prohibited and will result in permanent key deactivation without refund.
+
+            **2. Data Privacy & Security:**  
+            Uploaded Excel files (`.xlsx` / `.xls`) are processed temporarily in active session memory solely to generate your report and are **never saved or stored** on our servers.
+
+            **3. Service Scope & Software Updates:**  
+            "Unlimited use" applies to the current dashboard features and standard maintenance updates for the supported JC Invoice Statement format.
+
+            **4. Digital Delivery & No-Refund Policy:**  
+            Because this is an instant digital software license and a **Free Trial (25-row preview)** is provided before purchase, all ₹699 payments are **final and non-refundable** once the license key is issued.
+
+            **5. Support & Key Delivery:**  
+            Please enter a valid WhatsApp number/email during Razorpay checkout. If you do not receive your key immediately on the confirmation screen, contact support with your Razorpay Payment ID.
             """
-            <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; font-family: sans-serif; padding: 6px 0;">
-                <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px 18px; background: #fafafa;">
-                    <div style="font-weight: 700; font-size: 15px; margin-bottom: 4px;">📅 Monthly Pass — ₹99/mo</div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 10px;">Unlimited files & Excel export for 30 days</div>
-                    <form>
-                        <script src="https://checkout.razorpay.com/v1/payment-button.js"
-                                data-payment_button_id="pl_U380DaigJ2TGTN"
-                                async>
-                        </script>
-                    </form>
-                </div>
-                <div style="border: 2px solid #2b6cb0; border-radius: 10px; padding: 14px 18px; background: #ebf8ff;">
-                    <div style="font-weight: 700; font-size: 15px; color: #1a365d; margin-bottom: 4px;">⭐ Annual Pass — ₹699/yr (Best Value)</div>
-                    <div style="font-size: 12px; color: #2c5282; margin-bottom: 10px;">Full year access — save ₹489 vs monthly</div>
-                    <form>
-                        <script src="https://checkout.razorpay.com/v1/payment-button.js"
-                                data-payment_button_id="pl_U382n3tm4IReDi"
-                                async>
-                        </script>
-                    </form>
-                </div>
-            </div>
-            """,
-            height=155,
         )
 
 
 st.title("Workshop Service Category & Profit Dashboard")
 
-# --- ACCESS & TRIAL CONTROL ---
-valid_pro_keys = st.secrets.get("VALID_KEYS", ["PRO-2026", "CLIENT-101"])
+# --- LOAD KEYS SAFELY (SUPPORTS BOTH LIST & DICT IN SECRETS + CASE-INSENSITIVE) ---
+raw_secrets = st.secrets.get("VALID_KEYS", ["PRO-2026", "CLIENT-101"])
+if isinstance(raw_secrets, dict):
+    valid_pro_keys = {str(k).strip().upper() for k in raw_secrets.keys()}
+else:
+    valid_pro_keys = {str(k).strip().upper() for k in raw_secrets}
+
 trial_key = "TRIAL-2026"
 
 if "access_mode" not in st.session_state:
@@ -81,35 +73,37 @@ if "access_mode" not in st.session_state:
 
 with st.sidebar:
     st.header("🔑 Access & License")
-    user_key = st.text_input("Enter License Key:", type="password").strip()
+    user_key = st.text_input("Enter Lifetime License Key:", type="password").strip().upper()
 
-    if user_key in valid_pro_keys:
-        st.session_state["access_mode"] = "PRO"
-    elif user_key == trial_key:
-        st.session_state["access_mode"] = "TRIAL"
+    if user_key:
+        if user_key in valid_pro_keys:
+            st.session_state["access_mode"] = "PRO"
+        elif user_key == trial_key:
+            st.session_state["access_mode"] = "TRIAL"
+        else:
+            st.session_state["access_mode"] = None
+            st.error("❌ Invalid License Key. Check spelling or purchase below.")
 
     if st.session_state["access_mode"] != "PRO":
         if st.button("🎁 Start Free Trial (25 Rows)", use_container_width=True):
             st.session_state["access_mode"] = "TRIAL"
 
     st.markdown("---")
-    st.markdown("**Buy Pro License Key:**")
-    render_razorpay_buttons(compact=True)
-    st.caption("Instant checkout via UPI, Card, or NetBanking.")
+    st.caption("Need a Lifetime Pro Key (₹699 one-time)? Use the Pay Now button on the main screen.")
 
 mode = st.session_state["access_mode"]
 
 # --- LANDING PAYWALL ---
 if mode is None:
-    st.info("👋 Welcome! Test the dashboard with a **Free Trial** (first 25 rows) or unlock **Full Pro Access** below.")
-    col_trial, col_pro = st.columns([1, 1.4])
+    st.info("👋 Welcome! Test the dashboard with a **Free Trial** (first 25 rows) or unlock **Unlimited Lifetime Access** for ₹699.")
+    col_trial, col_pro = st.columns([1, 1.3])
     with col_trial:
         st.markdown(
             """
             ### 🎁 Free Trial Mode
             * Upload **1 JC Invoice Statement**
             * Preview first **25 rows** on screen
-            * Check **Free, Paid, RE Maestros & Accidental** split
+            * Verify **Free, Paid, RE Maestros & Accidental** split
             """
         )
         if st.button("🚀 Launch Free Trial Now", key="main_trial_btn"):
@@ -119,24 +113,28 @@ if mode is None:
     with col_pro:
         st.markdown(
             """
-            ### ⭐ Full Pro Access
-            * **100% of Rows & Unlimited Multi-File Merging**
+            ### ⭐ Lifetime Pro Access — ₹699 One-Time
+            * **Unlimited Forever** — Zero monthly subscriptions
+            * **100% of Rows & Multi-File Monthly Merging**
             * **1-Click Clean Excel Report Download**
             * **Service Consultant KPI Breakdown**
             """
         )
-        render_razorpay_buttons(compact=False)
+        render_razorpay_button()
+
+    st.markdown("---")
+    render_tnc()
     st.stop()
 
 # --- STATUS BANNER ---
 if mode == "TRIAL":
     st.warning(
         "🎁 **FREE TRIAL MODE ACTIVE:** Previewing up to **25 rows** from **1 file**. "
-        "Full monthly files, multi-file merging, and Excel downloads require a Pro License Key."
+        "Full files, multi-file merging, and Excel downloads require a Lifetime Pro Key (₹699 one-time)."
     )
-    render_razorpay_buttons(compact=False)
+    render_razorpay_button()
 else:
-    st.success("✅ **PRO ACCESS ACTIVE:** Unlimited rows, multi-file uploads, and Excel exports unlocked.")
+    st.success("✅ **LIFETIME PRO ACCESS ACTIVE:** Unlimited rows, multi-file uploads, and Excel exports unlocked.")
 
 # --- FILE UPLOADER ---
 uploaded_files = st.file_uploader(
@@ -217,7 +215,7 @@ if uploaded_files:
         df = df.head(25).copy()
         st.warning(
             f"🔒 **Trial Limit Reached:** Showing preview for **25 of {total_raw_rows:,} rows** "
-            f"({total_raw_rows - 25:,} rows hidden). Unlock Pro below to process the full file and download Excel."
+            f"({total_raw_rows - 25:,} rows hidden). Unlock Lifetime Pro below to process the full file and download Excel."
         )
 
     num_cols = [
@@ -315,5 +313,8 @@ if uploaded_files:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
     else:
-        st.info(f"🔒 **{max(0, total_raw_rows - 25):,} remaining rows & Excel Export** require a Pro License Key.")
-        render_razorpay_buttons(compact=False)
+        st.info(f"🔒 **{max(0, total_raw_rows - 25):,} remaining rows & Excel Export** require a Lifetime Pro License Key.")
+        render_razorpay_button()
+
+st.markdown("---")
+render_tnc()
